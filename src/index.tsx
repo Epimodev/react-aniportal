@@ -31,7 +31,6 @@ class AniPortal extends Component<Props, State> {
 
   getExitTimeout(): number {
     const { timeout } = this.props;
-    console.log(timeout);
     if (typeof timeout === 'number') {
       return timeout;
     }
@@ -53,6 +52,7 @@ class AniPortal extends Component<Props, State> {
         () => (this.container.className = enterActiveClassName),
         enterTimeout + TICK_TIMEOUT,
       );
+      setTimeout(() => (this.container.className = className), enterTimeout + 2 * TICK_TIMEOUT);
     });
   }
 
@@ -63,7 +63,6 @@ class AniPortal extends Component<Props, State> {
   componentWillUnmount() {
     const { className, classNames } = this.props;
     const exitTimeout = this.getExitTimeout();
-    console.log(exitTimeout);
     const exitClassName = classnames(className, classNames.exit);
     const exitActiveClassName = classnames(className, classNames.exit, classNames.exitActive);
 
