@@ -6,6 +6,7 @@
     "strict": true,
     "noUnusedLocals": false,
     "skipLibCheck": true,
+    "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2018",
     "jsx": "react",

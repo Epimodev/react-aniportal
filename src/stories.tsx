@@ -1,14 +1,21 @@
-import { createElement, Fragment, Component, ChangeEvent } from 'react';
+import { createElement, Fragment, Component, ChangeEvent, CSSProperties } from 'react';
 import { storiesOf } from '@storybook/react';
 import AniPortal from './index';
 
 interface AniPortalProps {
-  className: string;
-  classNames: {
-    enter: string;
-    enterActive: string;
-    exit: string;
-    exitActive: string;
+  className?: string;
+  classNames?: {
+    enter?: string;
+    enterActive?: string;
+    exit?: string;
+    exitActive?: string;
+  };
+  style?: CSSProperties;
+  styles?: {
+    enter?: CSSProperties;
+    enterActive?: CSSProperties;
+    exit?: CSSProperties;
+    exitActive?: CSSProperties;
   };
   timeout: number | { enter: number; exit: number };
 }
@@ -25,6 +32,47 @@ const portalClassNames2 = {
   ...portalClassNames,
   exit: `portal-example_exit_long`,
 };
+const portalStyle = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate3d(-50%, -50%, 0)',
+  width: '400px',
+  height: '200px',
+  display: 'flex',
+  flexDirection: 'column' as 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#2ecc71',
+  color: 'white',
+  borderRadius: '5px',
+  transition: '500ms',
+};
+const portalStyles = {
+  enter: {
+    opacity: 0,
+    transform: 'translate3d(-50%, -100%, 0)',
+  },
+  enterActive: {
+    opacity: 1,
+    transform: 'translate3d(-50%, -50%, 0)',
+  },
+  exit: {
+    opacity: 1,
+    transform: 'translate3d(-50%, -50%, 0)',
+  },
+  exitActive: {
+    opacity: 0,
+    transform: 'translate3d(-50%, 0, 0)',
+  },
+};
+const portalStyles2 = {
+  ...portalStyles,
+  exit: {
+    ...portalStyles.exit,
+    transition: '2000ms',
+  },
+};
 const customTimeout = {
   enter: 500,
   exit: 2000,
@@ -36,6 +84,10 @@ storiesOf('MultiAutoComplete', module)
   ))
   .add('With classNames and different timeout', () => (
     <Example className={portalClassName} classNames={portalClassNames2} timeout={customTimeout} />
+  ))
+  .add('With styles', () => <Example style={portalStyle} styles={portalStyles} timeout={500} />)
+  .add('With styles and different timeout', () => (
+    <Example style={portalStyle} styles={portalStyles2} timeout={customTimeout} />
   ));
 
 class Example extends Component<AniPortalProps, { opened: boolean; name: string }> {
