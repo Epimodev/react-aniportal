@@ -90,9 +90,9 @@ class AniPortal extends Component<Props, State> {
     return cssToStyleAttr(styleToConvert);
   }
 
-  setContainerStyle(style: string) {
-    if (style) {
-      this.container.setAttribute('style', style);
+  setContainerStyle(styleValue: string) {
+    if (styleValue) {
+      this.container.setAttribute('style', styleValue);
     }
   }
 
@@ -101,6 +101,15 @@ class AniPortal extends Component<Props, State> {
     if (this.currentClassName !== className) {
       this.currentClassName = className!;
       this.container.className = className!;
+    }
+    if (this.currentStyle !== style) {
+      this.currentStyle = style;
+      if (style) {
+        const styleValue = cssToStyleAttr(style);
+        this.container.setAttribute('style', styleValue);
+      } else {
+        this.container.removeAttribute('style');
+      }
     }
   }
 

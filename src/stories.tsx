@@ -77,6 +77,12 @@ const customTimeout = {
   enter: 500,
   exit: 2000,
 };
+const partialStyle1 = {
+  backgroundColor: '#e74c3c',
+};
+const partialStyle2 = {
+  backgroundColor: '#3498db',
+};
 
 storiesOf('MultiAutoComplete', module)
   .add('With classNames', () => (
@@ -145,9 +151,15 @@ class WithClassToogle extends Component<
     }));
   }
   toogleStyle() {
-    this.setState(state => ({
-      currentStyle: state.currentStyle ? { backgroundColor: '#3498db' } : undefined,
-    }));
+    this.setState(state => {
+      if (state.currentStyle === partialStyle1) {
+        return { currentStyle: partialStyle2 };
+      }
+      if (state.currentStyle === partialStyle2) {
+        return { currentStyle: undefined };
+      }
+      return { currentStyle: partialStyle1 };
+    });
   }
   render() {
     return (
