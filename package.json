@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "A react component which render a portal with enter/leave animations",
   "author": "Frederic Godin",
+  "repository": "Epimodev/react-aniportal",
   "license": "MIT",
   "main": "module/index.js",
   "module": "module/index.js",
