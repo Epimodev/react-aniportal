@@ -84,7 +84,7 @@ const partialStyle2 = {
   backgroundColor: '#3498db',
 };
 
-storiesOf('MultiAutoComplete', module)
+storiesOf('AniPortal', module)
   .add('With classNames', () => (
     <Example className={portalClassName} classNames={portalClassNames} timeout={500} />
   ))
