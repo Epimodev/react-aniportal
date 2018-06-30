@@ -28,6 +28,8 @@ interface State {}
 
 class AniPortal extends Component<Props, State> {
   container: HTMLDivElement = document.createElement('div');
+  currentClassName = this.props.className!;
+  currentStyle = this.props.style;
 
   static defaultProps = {
     className: '',
@@ -94,6 +96,14 @@ class AniPortal extends Component<Props, State> {
     }
   }
 
+  updateContainer() {
+    const { className, style } = this.props;
+    if (this.currentClassName !== className) {
+      this.currentClassName = className!;
+      this.container.className = className!;
+    }
+  }
+
   componentDidMount() {
     const { children, className, classNames } = this.props;
     const enterTimeout = this.getEnterTimeout();
@@ -120,6 +130,7 @@ class AniPortal extends Component<Props, State> {
   }
 
   componentDidUpdate() {
+    this.updateContainer();
     renderDOM(this.props.children, this.container);
   }
 

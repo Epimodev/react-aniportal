@@ -88,7 +88,8 @@ storiesOf('MultiAutoComplete', module)
   .add('With styles', () => <Example style={portalStyle} styles={portalStyles} timeout={500} />)
   .add('With styles and different timeout', () => (
     <Example style={portalStyle} styles={portalStyles2} timeout={customTimeout} />
-  ));
+  ))
+  .add('With className update', () => <WithClassToogle />);
 
 class Example extends Component<AniPortalProps, { opened: boolean; name: string }> {
   constructor(props: AniPortalProps) {
@@ -120,6 +121,47 @@ class Example extends Component<AniPortalProps, { opened: boolean; name: string 
             </Fragment>
           </AniPortal>
         )}
+      </Fragment>
+    );
+  }
+}
+
+class WithClassToogle extends Component<
+  {},
+  { currentClassName: string; currentStyle?: CSSProperties }
+> {
+  constructor(props: AniPortalProps) {
+    super(props);
+    this.state = { currentClassName: 'portal-example' };
+    this.toogleClass = this.toogleClass.bind(this);
+    this.toogleStyle = this.toogleStyle.bind(this);
+  }
+  toogleClass() {
+    this.setState(state => ({
+      currentClassName:
+        state.currentClassName === 'portal-example'
+          ? 'portal-example portal-example_purple'
+          : 'portal-example',
+    }));
+  }
+  toogleStyle() {
+    this.setState(state => ({
+      currentStyle: state.currentStyle ? { backgroundColor: '#3498db' } : undefined,
+    }));
+  }
+  render() {
+    return (
+      <Fragment>
+        <button onClick={this.toogleClass}>Change className</button>
+        <button onClick={this.toogleStyle}>Change style</button>
+        <AniPortal
+          className={this.state.currentClassName}
+          classNames={portalClassNames}
+          style={this.state.currentStyle}
+          timeout={500}
+        >
+          <div>Hello World</div>
+        </AniPortal>
       </Fragment>
     );
   }
