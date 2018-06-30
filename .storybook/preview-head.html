@@ -1,4 +1,8 @@
 <style>
+body {
+  font-family: sans-serif;
+}
+
 .portal-example {
   position: absolute;
   top: 50%;
@@ -6,8 +10,14 @@
   transform: translate3d(-50%, -50%, 0);
   width: 400px;
   height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   background-color: #2ecc71;
-  transition: 1000ms;
+  color: white;
+  border-radius: 5px;
+  transition: 500ms;
 }
 
 .portal-example_enter {

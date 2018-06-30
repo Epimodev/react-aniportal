@@ -1,11 +1,11 @@
-import { Component, ReactNode, ReactPortal } from 'react';
-import { createPortal } from 'react-dom';
+import { Component, ReactElement } from 'react';
+import { render as renderDOM } from 'react-dom';
 import * as classnames from 'classnames';
 
 const TICK_TIMEOUT = 50;
 
 export interface Props {
-  children: ReactNode;
+  children: ReactElement<any>;
   className: string;
   classNames: {
     enter: string;
@@ -16,37 +16,27 @@ export interface Props {
   timeout: number;
 }
 
-export interface State {
-  children: ReactNode;
-}
+export interface State {}
 
 class AniPortal extends Component<Props, State> {
   container: HTMLDivElement = document.createElement('div');
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      children: props.children,
-    };
-  }
-
-  static getDerivedStateFromProps(props: Props): State {
-    console.log('GET DERIVED STATE');
-    return {
-      children: props.children,
-    };
-  }
-
   componentDidMount() {
-    const { className, classNames, timeout } = this.props;
+    const { children, className, classNames, timeout } = this.props;
     const enterClassName = classnames(className, classNames.enter);
     const enterActiveClassName = classnames(className, classNames.enter, classNames.enterActive);
 
     this.container.className = enterClassName;
     document.body.appendChild(this.container);
 
-    setTimeout(() => (this.container.className = enterActiveClassName), TICK_TIMEOUT);
-    setTimeout(() => (this.container.className = enterActiveClassName), timeout + TICK_TIMEOUT);
+    renderDOM(children, this.container, () => {
+      setTimeout(() => (this.container.className = enterActiveClassName), TICK_TIMEOUT);
+      setTimeout(() => (this.container.className = enterActiveClassName), timeout + TICK_TIMEOUT);
+    });
+  }
+
+  componentDidUpdate() {
+    renderDOM(this.props.children, this.container);
   }
 
   componentWillUnmount() {
@@ -59,8 +49,8 @@ class AniPortal extends Component<Props, State> {
     setTimeout(() => document.body.removeChild(this.container), timeout + TICK_TIMEOUT);
   }
 
-  render(): ReactPortal {
-    return createPortal(this.state.children, this.container);
+  render() {
+    return null;
   }
 }
 
