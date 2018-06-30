@@ -4,25 +4,43 @@ import * as classnames from 'classnames';
 
 const TICK_TIMEOUT = 50;
 
-export interface Props {
+interface Props {
   children: ReactElement<any>;
   className: string;
   classNames: {
     enter: string;
     enterActive: string;
-    leave: string;
-    leaveActive: string;
+    exit: string;
+    exitActive: string;
   };
-  timeout: number;
+  timeout: number | { enter: number; exit: number };
 }
 
-export interface State {}
+interface State {}
 
 class AniPortal extends Component<Props, State> {
   container: HTMLDivElement = document.createElement('div');
 
+  getEnterTimeout(): number {
+    const { timeout } = this.props;
+    if (typeof timeout === 'number') {
+      return timeout;
+    }
+    return timeout.enter;
+  }
+
+  getExitTimeout(): number {
+    const { timeout } = this.props;
+    console.log(timeout);
+    if (typeof timeout === 'number') {
+      return timeout;
+    }
+    return timeout.exit;
+  }
+
   componentDidMount() {
-    const { children, className, classNames, timeout } = this.props;
+    const { children, className, classNames } = this.props;
+    const enterTimeout = this.getEnterTimeout();
     const enterClassName = classnames(className, classNames.enter);
     const enterActiveClassName = classnames(className, classNames.enter, classNames.enterActive);
 
@@ -31,7 +49,10 @@ class AniPortal extends Component<Props, State> {
 
     renderDOM(children, this.container, () => {
       setTimeout(() => (this.container.className = enterActiveClassName), TICK_TIMEOUT);
-      setTimeout(() => (this.container.className = enterActiveClassName), timeout + TICK_TIMEOUT);
+      setTimeout(
+        () => (this.container.className = enterActiveClassName),
+        enterTimeout + TICK_TIMEOUT,
+      );
     });
   }
 
@@ -40,13 +61,15 @@ class AniPortal extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    const { className, classNames, timeout } = this.props;
-    const leaveClassName = classnames(className, classNames.leave);
-    const leaveActiveClassName = classnames(className, classNames.leave, classNames.leaveActive);
+    const { className, classNames } = this.props;
+    const exitTimeout = this.getExitTimeout();
+    console.log(exitTimeout);
+    const exitClassName = classnames(className, classNames.exit);
+    const exitActiveClassName = classnames(className, classNames.exit, classNames.exitActive);
 
-    this.container.className = leaveClassName;
-    setTimeout(() => (this.container.className = leaveActiveClassName), TICK_TIMEOUT);
-    setTimeout(() => document.body.removeChild(this.container), timeout + TICK_TIMEOUT);
+    this.container.className = exitClassName;
+    setTimeout(() => (this.container.className = exitActiveClassName), TICK_TIMEOUT);
+    setTimeout(() => document.body.removeChild(this.container), exitTimeout + TICK_TIMEOUT);
   }
 
   render() {
