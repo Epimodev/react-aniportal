@@ -1,3 +1,32 @@
 <style>
+.portal-example {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  width: 400px;
+  height: 200px;
+  background-color: #2ecc71;
+  transition: 1000ms;
+}
 
+.portal-example_enter {
+  opacity: 0;
+  transform: translate3d(-50%, -100%, 0);
+}
+
+.portal-example_enter-active {
+  opacity: 1;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.portal-example_leave {
+  opacity: 1;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.portal-example_leave-active {
+  opacity: 0;
+  transform: translate3d(-50%, 0, 0);
+}
 </style>
