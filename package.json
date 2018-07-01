@@ -1,6 +1,6 @@
 {
   "name": "react-aniportal",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A react component which render a portal with enter/leave animations",
   "author": "Frederic Godin",
   "repository": "Epimodev/react-aniportal",
