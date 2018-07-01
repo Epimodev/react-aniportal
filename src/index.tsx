@@ -108,18 +108,21 @@ class AniPortal extends Component<Props, State> {
     const enterActiveClassName = classnames(className, classNames!.enter, classNames!.enterActive);
 
     this.container.className = enterClassName;
-    if (style) this.appendContainerStyle(style);
-    if (styles && styles.enter) this.appendContainerStyle(styles.enter);
+    if (style !== undefined) this.appendContainerStyle(style);
+    if (styles !== undefined && styles.enter !== undefined) this.appendContainerStyle(styles.enter);
     document.body.appendChild(this.container);
 
     renderDOM(children, this.container, () => {
       setTimeout(() => {
         this.container.className = enterActiveClassName;
-        if (styles && styles.enterActive) this.appendContainerStyle(styles.enterActive);
+        if (styles !== undefined && styles.enterActive !== undefined) {
+          this.appendContainerStyle(styles.enterActive);
+        }
       }, TICK_TIMEOUT);
       setTimeout(() => {
         this.container.className = className!;
-        this.updateContainerStyle(this.getEnterActiveStyle(), style);
+        // use `this.props.style` because it may change during animation
+        this.updateContainerStyle(this.getEnterActiveStyle(), this.props.style);
       }, enterTimeout + TICK_TIMEOUT);
     });
   }
@@ -136,10 +139,12 @@ class AniPortal extends Component<Props, State> {
     const exitActiveClassName = classnames(className, classNames!.exit, classNames!.exitActive);
 
     this.container.className = exitClassName;
-    if (styles && styles.exit) this.appendContainerStyle(styles.exit);
+    if (styles !== undefined && styles.exit !== undefined) this.appendContainerStyle(styles.exit);
     setTimeout(() => {
       this.container.className = exitActiveClassName;
-      if (styles && styles.exitActive) this.appendContainerStyle(styles.exitActive);
+      if (styles !== undefined && styles.exitActive !== undefined) {
+        this.appendContainerStyle(styles.exitActive);
+      }
     }, TICK_TIMEOUT);
     setTimeout(() => document.body.removeChild(this.container), exitTimeout + TICK_TIMEOUT);
   }
