@@ -1,7 +1,6 @@
 import { Component, ReactElement, CSSProperties } from 'react';
 import { render as renderDOM } from 'react-dom';
 import * as classnames from 'classnames';
-import { cssToStyleAttr } from './utils';
 
 const TICK_TIMEOUT = 50;
 
@@ -52,88 +51,75 @@ class AniPortal extends Component<Props, State> {
     return timeout.exit;
   }
 
-  getStyle(): string {
-    const { style } = this.props;
-    if (style) {
-      return cssToStyleAttr(style);
-    }
-    return '';
-  }
-
-  getEnterStyle(): string {
-    const { style = {}, styles = {} } = this.props;
-    const enterStyle = styles.enter || {};
-    const styleToConvert = { ...style, ...enterStyle };
-    return cssToStyleAttr(styleToConvert);
-  }
-
-  getEnterActiveStyle(): string {
+  getEnterActiveStyle(): CSSProperties {
     const { style = {}, styles = {} } = this.props;
     const enterStyle = styles.enter || {};
     const enterActiveStyle = styles.enterActive || {};
-    const styleToConvert = { ...style, ...enterStyle, ...enterActiveStyle };
-    return cssToStyleAttr(styleToConvert);
+    return { ...style, ...enterStyle, ...enterActiveStyle };
   }
 
-  getExitStyle(): string {
-    const { style = {}, styles = {} } = this.props;
-    const exitStyle = styles.exit || {};
-    const styleToConvert = { ...style, ...exitStyle };
-    return cssToStyleAttr(styleToConvert);
+  getRemovedProperties(
+    currentStyle: CSSProperties | undefined,
+    style: CSSProperties | undefined,
+  ): string[] {
+    if (!currentStyle) {
+      return [];
+    }
+    if (!style) {
+      return Object.keys(currentStyle);
+    }
+    return Object.keys(currentStyle).filter(currentKey => !(style as any)[currentKey]);
   }
 
-  getExitActiveStyle(): string {
-    const { style = {}, styles = {} } = this.props;
-    const exitStyle = styles.exit || {};
-    const exitActiveStyle = styles.exitActive || {};
-    const styleToConvert = { ...style, ...exitStyle, ...exitActiveStyle };
-    return cssToStyleAttr(styleToConvert);
+  appendContainerStyle(style: CSSProperties) {
+    Object.keys(style).forEach(property => {
+      this.container.style[property as any] = (style as any)[property];
+    });
   }
 
-  setContainerStyle(styleValue: string) {
-    if (styleValue) {
-      this.container.setAttribute('style', styleValue);
+  updateContainerStyle(currentStyle: CSSProperties | undefined, style: CSSProperties | undefined) {
+    const removedProperties = this.getRemovedProperties(currentStyle, style);
+    removedProperties.forEach(property => {
+      this.container.style[property as any] = '';
+    });
+    if (style) {
+      Object.keys(style).forEach(property => {
+        this.container.style[property as any] = (style as any)[property];
+      });
     }
   }
 
   updateContainer() {
     const { className, style } = this.props;
     if (this.currentClassName !== className) {
-      this.currentClassName = className!;
       this.container.className = className!;
+      this.currentClassName = className!;
     }
     if (this.currentStyle !== style) {
+      this.updateContainerStyle(this.currentStyle, style);
       this.currentStyle = style;
-      if (style) {
-        const styleValue = cssToStyleAttr(style);
-        this.container.setAttribute('style', styleValue);
-      } else {
-        this.container.removeAttribute('style');
-      }
     }
   }
 
   componentDidMount() {
-    const { children, className, classNames } = this.props;
+    const { children, className, classNames, style, styles } = this.props;
     const enterTimeout = this.getEnterTimeout();
     const enterClassName = classnames(className, classNames!.enter);
     const enterActiveClassName = classnames(className, classNames!.enter, classNames!.enterActive);
-    const style = this.getStyle();
-    const enterStyle = this.getEnterStyle();
-    const enterActiveStyle = this.getEnterActiveStyle();
 
     this.container.className = enterClassName;
-    this.setContainerStyle(enterStyle);
+    if (style) this.appendContainerStyle(style);
+    if (styles && styles.enter) this.appendContainerStyle(styles.enter);
     document.body.appendChild(this.container);
 
     renderDOM(children, this.container, () => {
       setTimeout(() => {
         this.container.className = enterActiveClassName;
-        this.setContainerStyle(enterActiveStyle);
+        if (styles && styles.enterActive) this.appendContainerStyle(styles.enterActive);
       }, TICK_TIMEOUT);
       setTimeout(() => {
         this.container.className = className!;
-        this.setContainerStyle(style);
+        this.updateContainerStyle(this.getEnterActiveStyle(), style);
       }, enterTimeout + TICK_TIMEOUT);
     });
   }
@@ -144,18 +130,16 @@ class AniPortal extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    const { className, classNames } = this.props;
+    const { className, classNames, styles } = this.props;
     const exitTimeout = this.getExitTimeout();
     const exitClassName = classnames(className, classNames!.exit);
     const exitActiveClassName = classnames(className, classNames!.exit, classNames!.exitActive);
-    const exitStyle = this.getExitStyle();
-    const exitActiveStyle = this.getExitActiveStyle();
 
     this.container.className = exitClassName;
-    this.setContainerStyle(exitStyle);
+    if (styles && styles.exit) this.appendContainerStyle(styles.exit);
     setTimeout(() => {
       this.container.className = exitActiveClassName;
-      this.setContainerStyle(exitActiveStyle);
+      if (styles && styles.exitActive) this.appendContainerStyle(styles.exitActive);
     }, TICK_TIMEOUT);
     setTimeout(() => document.body.removeChild(this.container), exitTimeout + TICK_TIMEOUT);
   }

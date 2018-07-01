@@ -52,7 +52,6 @@
     }
   },
   "dependencies": {
-    "classnames": "^2.2.6",
-    "lodash": "^4.17.10"
+    "classnames": "^2.2.6"
   }
 }
