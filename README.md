@@ -19,7 +19,7 @@ npm install react-aniportal
 
 ```javascript
 import React from 'react';
-import AniPortal from './react-aniportal';
+import AniPortal from 'react-aniportal';
 
 const modalClassNames = {
   enter: 'modal_enter';
