@@ -40,17 +40,20 @@ function ModalExample() {
 
 ## Available props
 
-#### className: string
+#### className (optional): string
 className to apply on portal container
 
-#### classNames: { enter?: string; enterActive?: string; exit?: string; exitActive?: string }
+#### classNames (optional): { enter?: string; enterActive?: string; exit?: string; exitActive?: string }
 classNames which are applied during mount and unmount of the component
 
-#### style: CSSProperties
+#### style (optional): CSSProperties
 style to apply on portal container
 
-#### styles: { enter?: CSSProperties; enterActive?: CSSProperties; exit?: CSSProperties; exitActive?: CSSProperties }
+#### styles (optional): { enter?: CSSProperties; enterActive?: CSSProperties; exit?: CSSProperties; exitActive?: CSSProperties }
 styles which are applied during mount and unmount of the component
 
 #### timeout: number | { enter: number; exit: number }
 duration of enter and exit animations
+
+#### portalDidUpdate (optional): () => void
+Callback function launched when portal is render after an update

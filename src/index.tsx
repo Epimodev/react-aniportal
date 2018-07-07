@@ -21,6 +21,7 @@ interface Props {
     exitActive?: CSSProperties;
   };
   timeout: number | { enter: number; exit: number };
+  portalDidUpdate?: () => void;
 }
 
 interface State {}
@@ -128,8 +129,9 @@ class AniPortal extends Component<Props, State> {
   }
 
   componentDidUpdate() {
+    const { children, portalDidUpdate } = this.props;
     this.updateContainer();
-    renderDOM(this.props.children, this.container);
+    renderDOM(children, this.container, portalDidUpdate);
   }
 
   componentWillUnmount() {
