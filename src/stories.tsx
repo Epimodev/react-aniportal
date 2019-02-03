@@ -101,12 +101,12 @@ class Example extends Component<AniPortalProps, { opened: boolean; name: string 
   constructor(props: AniPortalProps) {
     super(props);
     this.state = { opened: false, name: 'World' };
-    this.openPortal = this.openPortal.bind(this);
+    this.togglePortal = this.togglePortal.bind(this);
     this.closePortal = this.closePortal.bind(this);
     this.changeName = this.changeName.bind(this);
   }
-  openPortal() {
-    this.setState({ opened: true });
+  togglePortal() {
+    this.setState(state => ({ opened: !state.opened }));
   }
   closePortal() {
     this.setState({ opened: false });
@@ -115,14 +115,15 @@ class Example extends Component<AniPortalProps, { opened: boolean; name: string 
     this.setState({ name: event.currentTarget.value });
   }
   render() {
+    const { name, opened } = this.state;
     return (
       <Fragment>
-        <button onClick={this.openPortal}>Open portal</button>
-        <input type="text" value={this.state.name} onChange={this.changeName} />
-        {this.state.opened && (
+        <button onClick={this.togglePortal}>{opened ? 'Close portal' : 'Open portal'}</button>
+        <input type="text" value={name} onChange={this.changeName} />
+        {opened && (
           <AniPortal {...this.props}>
             <Fragment>
-              <div>Hello {this.state.name}</div>
+              <div>Hello {name}</div>
               <button onClick={this.closePortal}>Close Portal</button>
             </Fragment>
           </AniPortal>

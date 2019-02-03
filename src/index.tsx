@@ -28,6 +28,7 @@ interface State {}
 
 class AniPortal extends Component<Props, State> {
   container: HTMLDivElement = document.createElement('div');
+  mounted: boolean = false;
   currentClassName = this.props.className!;
   currentStyle = this.props.style;
 
@@ -104,6 +105,7 @@ class AniPortal extends Component<Props, State> {
 
   componentDidMount() {
     const { children, className, classNames, style, styles } = this.props;
+    this.mounted = true;
     const enterTimeout = this.getEnterTimeout();
     const enterClassName = classnames(className, classNames!.enter);
     const enterActiveClassName = classnames(className, classNames!.enter, classNames!.enterActive);
@@ -121,9 +123,11 @@ class AniPortal extends Component<Props, State> {
         }
       }, TICK_TIMEOUT);
       setTimeout(() => {
-        this.container.className = className!;
-        // use `this.props.style` because it may change during animation
-        this.updateContainerStyle(this.getEnterActiveStyle(), this.props.style);
+        if (this.mounted) {
+          this.container.className = className!;
+          // use `this.props.style` because it may change during animation
+          this.updateContainerStyle(this.getEnterActiveStyle(), this.props.style);
+        }
       }, enterTimeout + TICK_TIMEOUT);
     });
   }
@@ -136,6 +140,7 @@ class AniPortal extends Component<Props, State> {
 
   componentWillUnmount() {
     const { className, classNames, styles } = this.props;
+    this.mounted = false;
     const exitTimeout = this.getExitTimeout();
     const exitClassName = classnames(className, classNames!.exit);
     const exitActiveClassName = classnames(className, classNames!.exit, classNames!.exitActive);
