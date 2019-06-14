@@ -125,6 +125,7 @@ class Example extends Component<AniPortalProps, { opened: boolean; name: string 
             <Fragment>
               <div>Hello {name}</div>
               <button onClick={this.closePortal}>Close Portal</button>
+              <PortalChildren />
             </Fragment>
           </AniPortal>
         )}
@@ -177,5 +178,15 @@ class WithClassToogle extends Component<
         </AniPortal>
       </Fragment>
     );
+  }
+}
+
+// Component create to check componentWillUnmount is well called when AniPortal is unmounted
+class PortalChildren extends Component {
+  componentWillUnmount() {
+    console.log('portal children component will unmount');
+  }
+  render() {
+    return this.props.children || null;
   }
 }

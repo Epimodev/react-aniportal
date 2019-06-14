@@ -1,5 +1,5 @@
 import { createElement, Component, ReactElement, CSSProperties } from 'react';
-import { render as renderDOM } from 'react-dom';
+import { render as renderDOM, unmountComponentAtNode } from 'react-dom';
 import * as classnames from 'classnames';
 
 const TICK_TIMEOUT = 50;
@@ -153,8 +153,8 @@ class AniPortal extends Component<Props, State> {
         this.appendContainerStyle(styles.exitActive);
       }
     }, TICK_TIMEOUT);
-    // render empty DOM to unmount component in portal
-    setTimeout(() => renderDOM(<div />, this.container), exitTimeout + TICK_TIMEOUT);
+
+    setTimeout(() => unmountComponentAtNode(this.container), exitTimeout + TICK_TIMEOUT);
     setTimeout(() => document.body.removeChild(this.container), exitTimeout + TICK_TIMEOUT * 2);
   }
 
