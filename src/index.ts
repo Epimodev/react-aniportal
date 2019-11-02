@@ -86,6 +86,10 @@ function updateContainerStyle(
   }
 }
 
+function waitNextFrame(callback: () => void): number {
+  return window.setTimeout(callback, 20);
+}
+
 const AniPortal: React.FC<Props> = ({
   children,
   className = '',
@@ -123,7 +127,7 @@ const AniPortal: React.FC<Props> = ({
 
     // render component
     renderDOM(children, container.current, () => {
-      requestFrame = requestAnimationFrame(() => {
+      requestFrame = waitNextFrame(() => {
         // set enterActive class and style
         container.current!.className = enterActiveClassName;
         if (styles !== undefined && styles.enterActive !== undefined) {
@@ -145,7 +149,7 @@ const AniPortal: React.FC<Props> = ({
     // component unmount
     return () => {
       mounted.current = false;
-      cancelAnimationFrame(requestFrame);
+      clearTimeout(requestFrame);
       clearTimeout(enterTimer);
 
       if (container.current) {
@@ -162,7 +166,7 @@ const AniPortal: React.FC<Props> = ({
           appendContainerStyle(container.current, styles.exit);
         }
 
-        requestAnimationFrame(() => {
+        waitNextFrame(() => {
           // set exitActive class and style
           container.current!.className = exitActiveClassName;
           if (styles !== undefined && styles.exitActive !== undefined) {
@@ -174,7 +178,7 @@ const AniPortal: React.FC<Props> = ({
             unmountComponentAtNode(container.current!);
 
             // remove portal
-            requestAnimationFrame(() => {
+            waitNextFrame(() => {
               document.body.removeChild(container.current!);
               container.current = null;
             });
