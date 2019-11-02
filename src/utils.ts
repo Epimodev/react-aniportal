@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { PortalTimeout, AnimationStyles } from './types';
 
 /**
@@ -109,6 +110,114 @@ function waitNextFrame(callback: () => void): number {
   return window.setTimeout(callback, 30);
 }
 
+/**
+ * getFocusableElements
+ * get elements which can be focus in portal
+ * @param container portal container
+ * @return focusable elements in portal
+ */
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  const cssQuery =
+    'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]';
+  const nodeList = container.querySelectorAll(cssQuery);
+  return Array.prototype.slice.call(nodeList);
+}
+
+/**
+ * isFocusable
+ * check if an element is focusable
+ * @param element
+ * @return true if element is focusable
+ */
+function isFocusable(
+  element: Element | null | Element & { focus: () => void },
+): element is Element & { focus: () => void } {
+  if (element && (element as any).focus) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * focusNextElement
+ * set focus on next focusable element
+ * if focused element is the last focusable, the focus is set on first focusable element
+ * @param event
+ * @param focusableElements
+ */
+function focusNextElement(event: KeyboardEvent, focusableElements: HTMLElement[]): void {
+  const lastFocusableIndex = focusableElements.length - 1;
+  const lastFocusableElement = focusableElements[lastFocusableIndex];
+  if (document.activeElement === lastFocusableElement) {
+    const firstFocusableElement = focusableElements[0];
+    event.preventDefault();
+    firstFocusableElement.focus();
+  }
+}
+
+/**
+ * focusPreviousElement
+ * set focus on previous focusable element
+ * if focused element is the first focusable, the focus is set on last focusable element
+ * @param event
+ * @param focusableElements
+ */
+function focusPreviousElement(event: KeyboardEvent, focusableElements: HTMLElement[]): void {
+  const firstFocusableElement = focusableElements[0];
+  if (document.activeElement === firstFocusableElement) {
+    const lastFocusableIndex = focusableElements.length - 1;
+    const lastFocusableElement = focusableElements[lastFocusableIndex];
+    event.preventDefault();
+    lastFocusableElement.focus();
+  }
+}
+
+const TAB_KEYCODE = 9;
+
+/**
+ * useLocalFocus
+ * react hook which set focus on portal container and
+ * listen keyboard to limit focus for elements in portal
+ * @param ref react ref of portal container
+ * @param mounted true when portal element is mounted (after animation end)
+ * @param enabled if false, the hook doesn't start any listener
+ */
+function useLocalFocus(
+  ref: React.MutableRefObject<HTMLElement | null>,
+  mounted: boolean,
+  enabled: boolean,
+): void {
+  useEffect(() => {
+    if (enabled && mounted && ref.current) {
+      const focusedElementBeforeOpen = document.activeElement;
+      ref.current.focus();
+
+      const keyboardListener = (event: KeyboardEvent) => {
+        if (event.keyCode === TAB_KEYCODE) {
+          const focusableElements = getFocusableElements(ref.current!);
+
+          if (event.shiftKey) {
+            focusPreviousElement(event, focusableElements);
+          } else {
+            focusNextElement(event, focusableElements);
+          }
+        }
+      };
+
+      window.addEventListener('keydown', keyboardListener);
+
+      return () => {
+        window.removeEventListener('keydown', keyboardListener);
+        waitNextFrame(() => {
+          if (isFocusable(focusedElementBeforeOpen)) {
+            focusedElementBeforeOpen.focus();
+          }
+        });
+      };
+    }
+  }, [mounted, enabled]);
+}
+
 export {
   getEnterTimeout,
   getExitTimeout,
@@ -116,4 +225,5 @@ export {
   appendContainerStyle,
   updateContainerStyle,
   waitNextFrame,
+  useLocalFocus,
 };

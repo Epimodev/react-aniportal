@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { render as renderDOM, unmountComponentAtNode } from 'react-dom';
 import * as classnames from 'classnames';
 import {
@@ -8,6 +8,7 @@ import {
   appendContainerStyle,
   updateContainerStyle,
   waitNextFrame,
+  useLocalFocus,
 } from './utils';
 import { AnimationClassNames, AnimationStyles, PortalTimeout } from './types';
 
@@ -19,6 +20,7 @@ interface Props {
   styles?: AnimationStyles;
   timeout: PortalTimeout;
   portalDidUpdate?: () => void;
+  withoutLocalFocus?: boolean;
 }
 
 const AniPortal: React.FC<Props> = ({
@@ -29,16 +31,22 @@ const AniPortal: React.FC<Props> = ({
   styles,
   timeout,
   portalDidUpdate,
+  withoutLocalFocus,
 }) => {
-  const mounted = useRef(false);
+  const [mounted, setMounted] = useState(false);
   const container = useRef<HTMLDivElement | null>(null);
   const currentStyle = useRef<React.CSSProperties | undefined>(style);
+
+  useLocalFocus(container, mounted, !withoutLocalFocus);
 
   // component mount
   useEffect(() => {
     let requestFrame = 0;
     let enterTimer = 0;
     container.current = document.createElement('div');
+    if (!withoutLocalFocus) {
+      container.current.setAttribute('tabindex', '0');
+    }
 
     // compute timeout
     const enterTimeout = getEnterTimeout(timeout);
@@ -67,7 +75,7 @@ const AniPortal: React.FC<Props> = ({
 
         enterTimer = window.setTimeout(() => {
           if (container.current) {
-            mounted.current = true;
+            setMounted(true);
             // remove animation class and style
             container.current.className = className;
             const enterStyleActive = getEnterActiveStyle(style || {}, styles || {});
@@ -79,7 +87,7 @@ const AniPortal: React.FC<Props> = ({
 
     // component unmount
     return () => {
-      mounted.current = false;
+      setMounted(false);
       clearTimeout(requestFrame);
       clearTimeout(enterTimer);
 
@@ -126,22 +134,22 @@ const AniPortal: React.FC<Props> = ({
 
   // update className
   useEffect(() => {
-    if (container.current && mounted.current) {
+    if (container.current && mounted) {
       container.current.className = className;
 
       if (portalDidUpdate) portalDidUpdate();
     }
-  }, [className]);
+  }, [className, mounted]);
 
   // update style
   useEffect(() => {
-    if (container.current && mounted.current) {
+    if (container.current && mounted && currentStyle.current !== style) {
       updateContainerStyle(container.current, currentStyle.current, style);
       currentStyle.current = style;
 
       if (portalDidUpdate) portalDidUpdate();
     }
-  }, [style]);
+  }, [style, mounted]);
 
   return null;
 };

@@ -1,23 +1,16 @@
 import { createElement, Fragment, useState, useEffect } from 'react';
 import { storiesOf } from '@storybook/react';
 import AniPortal from './index';
+import { AnimationClassNames, AnimationStyles, PortalTimeout } from './types';
 
 interface AniPortalProps {
   className?: string;
-  classNames?: {
-    enter?: string;
-    enterActive?: string;
-    exit?: string;
-    exitActive?: string;
-  };
+  classNames?: AnimationClassNames;
   style?: React.CSSProperties;
-  styles?: {
-    enter?: React.CSSProperties;
-    enterActive?: React.CSSProperties;
-    exit?: React.CSSProperties;
-    exitActive?: React.CSSProperties;
-  };
-  timeout: number | { enter: number; exit: number };
+  styles?: AnimationStyles;
+  timeout: PortalTimeout;
+  portalDidUpdate?: () => void;
+  withoutLocalFocus?: boolean;
 }
 
 // classNames are defined in `.storybook/preview-head.html`
@@ -119,7 +112,8 @@ const Example: React.FC<AniPortalProps> = props => {
         <AniPortal {...props}>
           <Fragment>
             <div>Hello {name}</div>
-            <button onClick={closePortal}>Close Portal</button>
+            <button onClick={closePortal}>Close</button>
+            <button onClick={() => alert('Validate!!!')}>Validate</button>
             <PortalChildren />
           </Fragment>
         </AniPortal>
