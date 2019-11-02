@@ -1,22 +1,15 @@
 import { useRef, useEffect } from 'react';
 import { render as renderDOM, unmountComponentAtNode } from 'react-dom';
 import * as classnames from 'classnames';
-
-type PortalTimeout = number | { enter: number; exit: number };
-
-interface AnimationClassNames {
-  enter?: string;
-  enterActive?: string;
-  exit?: string;
-  exitActive?: string;
-}
-
-interface AnimationStyles {
-  enter?: React.CSSProperties;
-  enterActive?: React.CSSProperties;
-  exit?: React.CSSProperties;
-  exitActive?: React.CSSProperties;
-}
+import {
+  getEnterTimeout,
+  getExitTimeout,
+  getEnterActiveStyle,
+  appendContainerStyle,
+  updateContainerStyle,
+  waitNextFrame,
+} from './utils';
+import { AnimationClassNames, AnimationStyles, PortalTimeout } from './types';
 
 interface Props {
   children: React.ReactElement<any>;
@@ -26,68 +19,6 @@ interface Props {
   styles?: AnimationStyles;
   timeout: PortalTimeout;
   portalDidUpdate?: () => void;
-}
-
-function getEnterTimeout(timeout: PortalTimeout): number {
-  if (typeof timeout === 'number') {
-    return timeout;
-  }
-  return timeout.enter;
-}
-
-function getExitTimeout(timeout: PortalTimeout): number {
-  if (typeof timeout === 'number') {
-    return timeout;
-  }
-  return timeout.exit;
-}
-
-function getEnterActiveStyle(
-  style: React.CSSProperties,
-  styles: AnimationStyles,
-): React.CSSProperties {
-  const enterStyle = styles.enter || {};
-  const enterActiveStyle = styles.enterActive || {};
-  return { ...style, ...enterStyle, ...enterActiveStyle };
-}
-
-function getRemovedProperties(
-  currentStyle: React.CSSProperties | undefined,
-  style: React.CSSProperties | undefined,
-): string[] {
-  if (!currentStyle) {
-    return [];
-  }
-  if (!style) {
-    return Object.keys(currentStyle);
-  }
-  return Object.keys(currentStyle).filter(currentKey => !(style as any)[currentKey]);
-}
-
-function appendContainerStyle(container: HTMLDivElement, style: React.CSSProperties): void {
-  Object.keys(style).forEach(property => {
-    container.style[property as any] = (style as any)[property];
-  });
-}
-
-function updateContainerStyle(
-  container: HTMLDivElement,
-  currentStyle: React.CSSProperties | undefined,
-  style: React.CSSProperties | undefined,
-) {
-  const removedProperties = getRemovedProperties(currentStyle, style);
-  removedProperties.forEach(property => {
-    container.style[property as any] = '';
-  });
-  if (style) {
-    Object.keys(style).forEach(property => {
-      container.style[property as any] = (style as any)[property];
-    });
-  }
-}
-
-function waitNextFrame(callback: () => void): number {
-  return window.setTimeout(callback, 20);
 }
 
 const AniPortal: React.FC<Props> = ({
