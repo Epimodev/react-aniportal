@@ -1,4 +1,4 @@
-import { createElement, Fragment, Component, ChangeEvent, CSSProperties } from 'react';
+import { createElement, Fragment, useState, useEffect } from 'react';
 import { storiesOf } from '@storybook/react';
 import AniPortal from './index';
 
@@ -10,12 +10,12 @@ interface AniPortalProps {
     exit?: string;
     exitActive?: string;
   };
-  style?: CSSProperties;
+  style?: React.CSSProperties;
   styles?: {
-    enter?: CSSProperties;
-    enterActive?: CSSProperties;
-    exit?: CSSProperties;
-    exitActive?: CSSProperties;
+    enter?: React.CSSProperties;
+    enterActive?: React.CSSProperties;
+    exit?: React.CSSProperties;
+    exitActive?: React.CSSProperties;
   };
   timeout: number | { enter: number; exit: number };
 }
@@ -97,96 +97,81 @@ storiesOf('AniPortal', module)
   ))
   .add('With className update', () => <WithClassToogle />);
 
-class Example extends Component<AniPortalProps, { opened: boolean; name: string }> {
-  constructor(props: AniPortalProps) {
-    super(props);
-    this.state = { opened: false, name: 'World' };
-    this.togglePortal = this.togglePortal.bind(this);
-    this.closePortal = this.closePortal.bind(this);
-    this.changeName = this.changeName.bind(this);
-  }
-  togglePortal() {
-    this.setState(state => ({ opened: !state.opened }));
-  }
-  closePortal() {
-    this.setState({ opened: false });
-  }
-  changeName(event: ChangeEvent<HTMLInputElement>) {
-    this.setState({ name: event.currentTarget.value });
-  }
-  render() {
-    const { name, opened } = this.state;
-    return (
-      <Fragment>
-        <button onClick={this.togglePortal}>{opened ? 'Close portal' : 'Open portal'}</button>
-        <input type="text" value={name} onChange={this.changeName} />
-        {opened && (
-          <AniPortal {...this.props}>
-            <Fragment>
-              <div>Hello {name}</div>
-              <button onClick={this.closePortal}>Close Portal</button>
-              <PortalChildren />
-            </Fragment>
-          </AniPortal>
-        )}
-      </Fragment>
-    );
-  }
-}
+const Example: React.FC<AniPortalProps> = props => {
+  const [opened, setOpened] = useState(false);
+  const [name, setName] = useState('World');
 
-class WithClassToogle extends Component<
-  {},
-  { currentClassName: string; currentStyle?: CSSProperties }
-> {
-  constructor(props: AniPortalProps) {
-    super(props);
-    this.state = { currentClassName: 'portal-example' };
-    this.toogleClass = this.toogleClass.bind(this);
-    this.toogleStyle = this.toogleStyle.bind(this);
-  }
-  toogleClass() {
-    this.setState(state => ({
-      currentClassName:
-        state.currentClassName === 'portal-example'
-          ? 'portal-example portal-example_purple'
-          : 'portal-example',
-    }));
-  }
-  toogleStyle() {
-    this.setState(state => {
-      if (state.currentStyle === partialStyle1) {
-        return { currentStyle: partialStyle2 };
-      }
-      if (state.currentStyle === partialStyle2) {
-        return { currentStyle: undefined };
-      }
-      return { currentStyle: partialStyle1 };
-    });
-  }
-  render() {
-    return (
-      <Fragment>
-        <button onClick={this.toogleClass}>Change className</button>
-        <button onClick={this.toogleStyle}>Change style</button>
-        <AniPortal
-          className={this.state.currentClassName}
-          classNames={portalClassNames}
-          style={this.state.currentStyle}
-          timeout={500}
-        >
-          <div>Hello World</div>
+  const togglePortal = () => {
+    setOpened(o => !o);
+  };
+  const closePortal = () => {
+    setOpened(false);
+  };
+  const changeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.currentTarget.value);
+  };
+
+  return (
+    <Fragment>
+      <button onClick={togglePortal}>{opened ? 'Close portal' : 'Open portal'}</button>
+      <input type="text" value={name} onChange={changeName} />
+      {opened && (
+        <AniPortal {...props}>
+          <Fragment>
+            <div>Hello {name}</div>
+            <button onClick={closePortal}>Close Portal</button>
+            <PortalChildren />
+          </Fragment>
         </AniPortal>
-      </Fragment>
+      )}
+    </Fragment>
+  );
+};
+
+const WithClassToogle: React.FC = () => {
+  const [currentClassName, setCurrentClassName] = useState('portal-example');
+  const [currentStyle, setCurrentStyle] = useState<React.CSSProperties | undefined>();
+
+  const toggleClass = () => {
+    setCurrentClassName(className =>
+      className === 'portal-example' ? 'portal-example portal-example_purple' : 'portal-example',
     );
-  }
-}
+  };
+  const toggleStyle = () => {
+    setCurrentStyle(style => {
+      if (style === partialStyle1) {
+        return partialStyle2;
+      }
+      if (style === partialStyle2) {
+        return undefined;
+      }
+      return partialStyle1;
+    });
+  };
+
+  return (
+    <Fragment>
+      <button onClick={toggleClass}>Change className</button>
+      <button onClick={toggleStyle}>Change style</button>
+      <AniPortal
+        className={currentClassName}
+        classNames={portalClassNames}
+        style={currentStyle}
+        timeout={500}
+      >
+        <div>Hello World</div>
+      </AniPortal>
+    </Fragment>
+  );
+};
 
 // Component create to check componentWillUnmount is well called when AniPortal is unmounted
-class PortalChildren extends Component {
-  componentWillUnmount() {
-    console.log('portal children component will unmount');
-  }
-  render() {
-    return this.props.children || null;
-  }
-}
+const PortalChildren: React.FC = ({ children }) => {
+  useEffect(() => {
+    return () => {
+      console.log('portal children component will unmount');
+    };
+  }, []);
+
+  return <Fragment>{children}</Fragment> || null;
+};
