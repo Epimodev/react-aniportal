@@ -5,6 +5,8 @@ This component is made to create modal, tooltip, dropdown with animations.
 
 The api of this component is inspired by [`react-transition-group`](https://github.com/reactjs/react-transition-group).
 
+> since version 0.2 the component use react hooks so you'll need to upgrade react to version >=16.8
+
 ## Installation
 
 ```sh
@@ -56,4 +58,8 @@ styles which are applied during mount and unmount of the component
 duration of enter and exit animations
 
 #### portalDidUpdate (optional): () => void
-Callback function launched when portal is render after an update
+callback function launched when portal is render after an update
+
+#### withoutLocalFocus (optional): boolean
+by default focus will be restricted to elements in portal
+you can disable this behavior by using this prop
