@@ -143,13 +143,13 @@ const AniPortal: React.FC<Props> = ({
 
   // update style
   useEffect(() => {
-    if (container.current && mounted && currentStyle.current !== style) {
+    if (container.current && currentStyle.current !== style) {
       updateContainerStyle(container.current, currentStyle.current, style);
       currentStyle.current = style;
 
       if (portalDidUpdate) portalDidUpdate();
     }
-  }, [style, mounted]);
+  }, [style]);
 
   return null;
 };
