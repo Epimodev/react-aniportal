@@ -57,7 +57,9 @@ const AniPortal: React.FC<Props> = ({
     container.current.className = enterClassName;
 
     // set enter style
-    if (style !== undefined) appendContainerStyle(container.current, style);
+    if (currentStyle.current !== undefined) {
+      appendContainerStyle(container.current, currentStyle.current);
+    }
     if (styles !== undefined && styles.enter !== undefined) {
       appendContainerStyle(container.current, styles.enter);
     }
@@ -78,8 +80,8 @@ const AniPortal: React.FC<Props> = ({
             setMounted(true);
             // remove animation class and style
             container.current.className = className;
-            const enterStyleActive = getEnterActiveStyle(style || {}, styles || {});
-            updateContainerStyle(container.current, enterStyleActive, style);
+            const enterStyleActive = getEnterActiveStyle(currentStyle.current || {}, styles || {});
+            updateContainerStyle(container.current, enterStyleActive, currentStyle.current);
           }
         }, enterTimeout);
       });
